@@ -1,0 +1,54 @@
+* {
+  border: 2px solid red;
+}
+h1 {
+  text-align: center;
+  color: rgb(3, 62, 3);
+}
+.title h1 {
+  background-color: lightgreen;
+  opacity: 50%;
+  width: 700px;
+  margin: auto;
+  height: 40px;
+  border-radius: 13px;
+}
+.monkey {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  background-image: url("assets/monkey.png");
+  height: 100px;
+  width: 100px;
+}
+
+body {
+  background-image: url("assets/jungle.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  margin: 50px;
+  /*background-position: center;
+  background-size: 100%;*/
+}
+.messageArea {
+  height: 29px;
+  width: 700px;
+  margin: auto;
+  color: black;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-size: x-large;
+  text-align: center;
+  margin: auto;
+}
+
+.playArea {
+  border-radius: 5%;
+  background-color: white;
+  opacity: 20%;
+  height: 700px;
+  width: 700px;
+  margin: auto;
+  overflow: hidden;
+  /*cursor: grab;*/
+  cursor: url("assets/bananna.png"), auto;
+}
