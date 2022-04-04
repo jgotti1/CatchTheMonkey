@@ -23,6 +23,27 @@ document.addEventListener("DOMContentLoaded", function () {
   div.x = div.offsetLeft;
   div.y = div.offsetTop;
   div.addEventListener("click", function () {
-    div.style.backgroundImage = "none";
+    div.style.backgroundImage = "url(assets/monkey_X.png)";
   });
+  div.addEventListener("mouseleave", function () {
+    div.style.backgroundImage = "url(assets/monkey.png)";
+  });
+  div.steps = Math.random() * 20;
+  div.direction = Math.floor(Math.random() * 4);
+  console.log(div.steps);
+  window.requestAnimationFrame(moveMonkey);
 });
+
+function moveMonkey() {
+  let speed = Math.random() * 10 + 15;
+  let monkey = document.querySelector(".monkey");
+  let cords = playArea.getBoundingClientRect();
+  console.log(cords);
+  monkey.steps = monkey.steps - 1;
+  if (monkey.steps < 0) {
+    monkey.steps = Math.random() * 20;
+    monkey.direction = Math.floor(Math.random() * 4);
+  }
+  console.log(monkey.direction);
+  window.requestAnimationFrame(moveMonkey);
+}
