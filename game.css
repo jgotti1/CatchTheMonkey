@@ -1,18 +1,22 @@
-* {
+/* * {
   border: 2px solid red;
-}
+} */
+
 h1 {
   text-align: center;
   color: rgb(3, 62, 3);
+  font-size: 36pt;
+  font-family: fantasy;
+  text-shadow: 2px 2px whitesmoke;
 }
-.title h1 {
+/* .title h1 {
   background-color: lightgreen;
   opacity: 50%;
   width: 700px;
   margin: auto;
   height: 40px;
-  border-radius: 13px;
-}
+  border-radius: 13px; */
+/* } */
 .monkey {
   position: absolute;
   left: 50%;
@@ -26,17 +30,15 @@ body {
   background-image: url("assets/jungle.jpg");
   background-repeat: no-repeat;
   background-size: cover;
-  margin: 50px;
-  /*background-position: center;
-  background-size: 100%;*/
 }
 .messageArea {
-  height: 29px;
+  height: 35px;
   width: 300px;
-  margin: auto;
+  margin-left: auto;
+  margin-top: 20px;
   color: black;
   font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
-  font-size: x-large;
+  font-size: 20pt;
   text-align: center;
   margin: auto;
   background-color: yellowgreen;
@@ -46,11 +48,16 @@ body {
 
 .playArea {
   border-radius: 5%;
-  background-color: white;
-  opacity: 20%;
-  height: 700px;
-  width: 700px;
+  background-image: url("assets/jungleGhost.png");
+  height: 800px;
+  width: 1400px;
   cursor: url("assets/bananna.png"), auto;
   margin: auto;
+  overflow: hidden;
+  border: 2px dotted darkgreen;
+}
+
+div,
+.monkey {
   overflow: hidden;
 }

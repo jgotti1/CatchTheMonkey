@@ -3,12 +3,12 @@ let playArea = document.querySelector(".playArea");
 let messageArea = document.querySelectorAll(".messageArea span");
 let score = 0;
 let time;
-playArea.addEventListener("mouseenter", function () {
-  playArea.style.opacity = "40%";
-});
-playArea.addEventListener("mouseleave", function () {
-  playArea.style.opacity = "20%";
-});
+// playArea.addEventListener("mouseenter", function () {
+//   playArea.style.opacity = "40%";
+// });
+// playArea.addEventListener("mouseleave", function () {
+//   playArea.style.opacity = "20%";
+// });
 // playArea.addEventListener("mousemove", function (mouse) {
 //   console.log(mouse.x, mouse.y);
 //   // if (mouse.x >= 426 && mouse.y <= 135) {
@@ -46,14 +46,14 @@ function moveMonkey() {
     monkey.direction = Math.floor(Math.random() * 4);
     monkey.steps = Math.random() * 20;
   }
-  if (monkey.direction == 0 && monkey.x < cords.right - 100) {
+  if (monkey.direction == 0 && monkey.x < cords.right - 150) {
     monkey.x += speed;
   }
 
   if (monkey.direction == 1 && monkey.x > cords.left) {
     monkey.x -= speed;
   }
-  if (monkey.direction == 2 && monkey.y < cords.bottom - 100) {
+  if (monkey.direction == 2 && monkey.y < cords.bottom - 150) {
     monkey.y += speed;
   }
 
