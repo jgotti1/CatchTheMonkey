@@ -14,9 +14,9 @@ h1 {
   border-radius: 13px;
 }
 .monkey {
-  position: relative;
+  position: absolute;
   left: 50%;
-  right: 50%;
+  top: 50%;
   background-image: url("assets/monkey.png");
   height: 100px;
   width: 100px;
@@ -32,13 +32,16 @@ body {
 }
 .messageArea {
   height: 29px;
-  width: 700px;
+  width: 300px;
   margin: auto;
   color: black;
   font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
   font-size: x-large;
   text-align: center;
   margin: auto;
+  background-color: yellowgreen;
+  border-radius: 20px;
+  border: 2px dotted darkgreen;
 }
 
 .playArea {
@@ -47,8 +50,7 @@ body {
   opacity: 20%;
   height: 700px;
   width: 700px;
+  cursor: url("assets/bananna.png"), auto;
   margin: auto;
   overflow: hidden;
-  /*cursor: grab;*/
-  cursor: url("assets/bananna.png"), auto;
 }
