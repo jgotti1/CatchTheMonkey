@@ -2,35 +2,40 @@
 let playArea = document.querySelector(".playArea");
 let messageArea = document.querySelectorAll(".messageArea span");
 let score = 0;
-let startingMin = 0.1;
+//set game running time
+let startingMin = 3;
 let time = startingMin * 60;
 let countdown = document.querySelector(".timer");
 let body = document.querySelector("body");
 let lowtime = document.querySelector(".timer");
 let button = document.querySelector(".ctc");
+let speed;
 function restart() {
   game();
   button.style.display = "none";
-  // w3.hide(".otc");
 }
-//DOMContentLoaded"
-// button.addEventListener("click", function () {
+//create monkey div//
 function game() {
   let div = document.createElement("div");
   div.classList.add("monkey");
   playArea.appendChild(div);
   div.x = div.offsetLeft;
   div.y = div.offsetTop;
+  // on click + score and "X"" monkey
   div.addEventListener("click", function () {
-    div.style.backgroundImage = "url(assets/monkey_X.png)";
+    speed = 0;
+    div.style.height = 200 + "px";
+    div.style.width = 200 + "px";
+    div.style.backgroundImage = "url(assets/spinMonkeyx.gif)";
     score = score + 1;
     messageArea[0].innerText = score;
   });
   div.addEventListener("mouseleave", function () {
-    div.style.backgroundImage = "url(assets/monkey.png)";
-    div.style.height = 100 + "px";
-    div.style.width = 100 + "px";
+    div.style.backgroundImage = "url(assets/spinMonkey.gif)";
+    div.style.height = 215 + "px";
+    div.style.width = 215 + "px";
   });
+  //count down clock//
   setInterval(updateCountDown, 1000);
   function updateCountDown() {
     let minutes = Math.floor(time / 60);
@@ -44,6 +49,7 @@ function game() {
 
       stopGame();
     }
+    //stop game when time expires//
     function stopGame() {
       playArea.style.backgroundImage = "none";
       playArea.style.cursor = "none";
@@ -64,8 +70,14 @@ function game() {
   window.requestAnimationFrame(moveMonkey);
 }
 
+function newFunction() {
+  setTimeout("", 5000);
+}
+
 function moveMonkey() {
-  let speed = Math.random() * 5 + 3;
+  // control speed //
+  let speed = Math.random() * 5 + 2;
+  // control speed * x + x  (x = lowest speed plus x random )
   let monkey = document.querySelector(".monkey");
   let cords = playArea.getBoundingClientRect();
   monkey.steps--;

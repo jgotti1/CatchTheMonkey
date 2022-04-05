@@ -44,9 +44,9 @@ h2 {
   position: absolute;
   left: 50%;
   top: 50%;
-  background-image: url("assets/monkey.png");
-  height: 100px;
-  width: 100px;
+  background-image: url("assets/spinMonkey.gif");
+  height: 215px;
+  width: 215px;
 }
 
 body {
