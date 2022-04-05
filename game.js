@@ -2,20 +2,10 @@
 let playArea = document.querySelector(".playArea");
 let messageArea = document.querySelectorAll(".messageArea span");
 let score = 0;
-let time;
-// playArea.addEventListener("mouseenter", function () {
-//   playArea.style.opacity = "40%";
-// });
-// playArea.addEventListener("mouseleave", function () {
-//   playArea.style.opacity = "20%";
-// });
-// playArea.addEventListener("mousemove", function (mouse) {
-//   console.log(mouse.x, mouse.y);
-//   // if (mouse.x >= 426 && mouse.y <= 135) {
-//   //   score = score + 1;
-//   //   messageArea[0].innerText = score;
-//   // }
-// });
+let startingMin = 0.5;
+let time = startingMin * 60;
+let countdown = document.querySelector(".timer");
+
 document.addEventListener("DOMContentLoaded", function () {
   let div = document.createElement("div");
   div.classList.add("monkey");
@@ -30,6 +20,21 @@ document.addEventListener("DOMContentLoaded", function () {
   div.addEventListener("mouseleave", function () {
     div.style.backgroundImage = "url(assets/monkey.png)";
   });
+  setInterval(updateCountDown, 1000);
+  function updateCountDown() {
+    let minutes = Math.floor(time / 60);
+    let seconds = time % 60;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+    countdown.innerHTML = `${minutes}:${seconds}`;
+    time--;
+    if (time < 0) {
+      time = 0;
+      stopGame("loser");
+    }
+  }
+  function stopGame(winlose) {
+    winlose = "loser" ? console.log("loser") : console.log("Winner");
+  }
   div.steps = Math.random() * 20;
   div.direction = Math.floor(Math.random() * 4);
   window.requestAnimationFrame(moveMonkey);
@@ -60,6 +65,7 @@ function moveMonkey() {
   if (monkey.direction == 3 && monkey.y > cords.top) {
     monkey.y -= speed;
   }
+
   monkey.style.top = monkey.y + "px";
   monkey.style.left = monkey.x + "px";
   window.requestAnimationFrame(moveMonkey);
