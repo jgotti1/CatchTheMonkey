@@ -10,6 +10,8 @@ let lowtime = document.querySelector(".timer");
 let button = document.querySelector(".ctc");
 function restart() {
   game();
+  button.style.display = "none";
+  // w3.hide(".otc");
 }
 //DOMContentLoaded"
 // button.addEventListener("click", function () {
@@ -48,6 +50,9 @@ function game() {
       body.style.backgroundImage = "url(assets/gameover.jpg)";
       div.style.backgroundImage = "none";
       body.style.backgroundPosition = "left";
+      button.innerText = "Game Over Click her to play again ... 🐵🐵🐵";
+      button.style.border = "3px dashed red";
+      button.style.display = "block";
       button.addEventListener("click", function () {
         location.reload();
       });
@@ -60,7 +65,7 @@ function game() {
 }
 
 function moveMonkey() {
-  let speed = Math.random() * 10 + 3;
+  let speed = Math.random() * 5 + 3;
   let monkey = document.querySelector(".monkey");
   let cords = playArea.getBoundingClientRect();
   monkey.steps--;

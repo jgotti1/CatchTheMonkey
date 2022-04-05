@@ -7,14 +7,18 @@
   top: 10px;
 }
 button {
-  height: 30px;
-  width: 100px;
+  display: block;
+  position: fixed;
+  height: 80px;
+  width: 120px;
   background-color: rgb(33, 33, 33);
   color: white;
   border-radius: 10px;
-  border: 2px dashed black;
+  border: 4px dashed yellowgreen;
   opacity: 90%;
   text-align: center;
+  top: 10px;
+  font-size: 12pt;
 }
 h1 {
   text-align: center;
