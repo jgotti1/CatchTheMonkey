@@ -5,11 +5,15 @@ let score = 0;
 let startingMin = 0.1;
 let time = startingMin * 60;
 let countdown = document.querySelector(".timer");
-let winlose = document.querySelector("winlose");
 let body = document.querySelector("body");
 let lowtime = document.querySelector(".timer");
-
-document.addEventListener("DOMContentLoaded", function () {
+let button = document.querySelector(".ctc");
+function restart() {
+  game();
+}
+//DOMContentLoaded"
+// button.addEventListener("click", function () {
+function game() {
   let div = document.createElement("div");
   div.classList.add("monkey");
   playArea.appendChild(div);
@@ -35,23 +39,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (time < 0) {
       time = 0;
+
       stopGame();
     }
-  }
-
-  function stopGame(winlose) {
-    if ((winlose = "loser")) {
+    function stopGame() {
       playArea.style.backgroundImage = "none";
       playArea.style.cursor = "none";
       body.style.backgroundImage = "url(assets/gameover.jpg)";
       div.style.backgroundImage = "none";
       body.style.backgroundPosition = "left";
+      button.addEventListener("click", function () {
+        location.reload();
+      });
     }
   }
+
   div.steps = Math.random() * 20;
   div.direction = Math.floor(Math.random() * 4);
   window.requestAnimationFrame(moveMonkey);
-});
+}
 
 function moveMonkey() {
   let speed = Math.random() * 10 + 3;
