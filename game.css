@@ -1,22 +1,37 @@
-/* * {
+* {
   border: 2px solid red;
-} */
+}
 
+button,
+.start {
+  height: 40px;
+  width: 100px;
+  background-color: rgb(33, 33, 33);
+  color: white;
+  border-radius: 10px;
+  border: 2px dashed black;
+  opacity: 90%;
+}
 h1 {
   text-align: center;
   color: rgb(3, 62, 3);
-  font-size: 36pt;
+  font-size: 38pt;
   font-family: fantasy;
   text-shadow: 2px 2px whitesmoke;
+  height: 30px;
+  margin-top: 10px;
 }
-/* .title h1 {
-  background-color: lightgreen;
-  opacity: 50%;
-  width: 700px;
+
+h2 {
+  text-align: center;
+  background-color: yellowgreen;
+  width: 1000px;
   margin: auto;
-  height: 40px;
-  border-radius: 13px; */
-/* } */
+  background-color: yellowgreen;
+  border-radius: 20px;
+  border: 2px dotted darkgreen;
+}
+
 .monkey {
   position: absolute;
   left: 50%;
@@ -31,11 +46,14 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
 }
+.instruct {
+  height: 50px;
+}
 .messageArea {
   height: 35px;
   width: 300px;
   margin-left: auto;
-  margin-top: 20px;
+  margin-top: 30px;
   color: black;
   font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
   font-size: 20pt;
