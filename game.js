@@ -9,12 +9,15 @@ let time = startingMin * 60;
 let body = document.querySelector("body");
 let lowtime = document.querySelector(".timer");
 let button = document.querySelector(".ctc");
+let button2 = document.querySelector(".ctc2");
 let speed;
 let bkmusic = document.getElementById("bkmusic");
 let monkeyYum = document.getElementById("monkeyYum");
 
 //set amount of minutes to play game//
-
+window.addEventListener("DOMContentLoaded", () => {
+  button2.style.display = "none";
+});
 function restart() {
   startingMin = prompt("How long do you want to play, enter 1 ,2 or 3 minutes");
   if (startingMin == 1 || startingMin == 2 || startingMin == 3) {
@@ -60,8 +63,8 @@ function game() {
   // on click + score and "X"" monkey
   div.addEventListener("click", function () {
     speed = 0;
-    div.style.height = 200 + "px";
-    div.style.width = 200 + "px";
+    div.style.height = 230 + "px";
+    div.style.width = 230 + "px";
     div.style.backgroundImage = "url(assets/spinMonkeyx.gif)";
     score = score + 1;
     messageArea[0].innerText = score;
@@ -104,13 +107,13 @@ function stopGame() {
   playArea.style.backgroundImage = "none";
   playArea.style.cursor = "none";
   body.style.backgroundImage = "url(assets/gameover.jpg)";
-  // let monkey = document.querySelector(".monkey");
-  // monkey.style.backgroundImage = "none";
+  let monkey = document.querySelector(".monkey");
+  monkey.style.backgroundImage = "none";
   body.style.backgroundPosition = "left";
-  button.innerText = "Game Over Click her to play again ... 🐵🐵🐵";
-  button.style.border = "3px dashed red";
-  button.style.display = "block";
-  button.addEventListener("click", function () {
+  button2.innerText = "Game Over Click her to play again ... 🐵🐵🐵";
+  button2.style.border = "3px dashed red";
+  button2.style.display = "block";
+  button2.addEventListener("click", function () {
     location.reload();
   });
   setTimeout(() => {

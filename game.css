@@ -20,6 +20,21 @@
   top: 10px;
   font-size: 12pt;
 }
+.ctc2 {
+  display: block;
+  position: fixed;
+  margin-left: 31%;
+  height: 80px;
+  width: 120px;
+  background-color: rgb(33, 33, 33);
+  color: white;
+  border-radius: 10px;
+  border: 4px dashed yellowgreen;
+  opacity: 90%;
+  text-align: center;
+  top: 10px;
+  font-size: 12pt;
+}
 
 h1 {
   text-align: center;
