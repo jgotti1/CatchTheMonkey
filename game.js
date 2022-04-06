@@ -68,21 +68,28 @@ function game() {
   playArea.appendChild(div);
   div.x = div.offsetLeft;
   div.y = div.offsetTop;
-  // on click + score and "X"" monkey
+  // on click + score and "X" monkey
   div.addEventListener("click", function () {
-    speed = 0;
-    div.style.height = 230 + "px";
-    div.style.width = 230 + "px";
-    div.style.backgroundImage = "url(assets/spinMonkeyx.gif)";
+    div.style.height = 220 + "px";
+    div.style.width = 220 + "px";
+    div.style.backgroundImage = "url(assets/monkeyBananaSpin.gif)";
     score = score + 1;
     messageArea[0].innerText = score;
     monkeyYumPlay();
   });
+  // div.addEventListener("mouseleave", function () {
+  //   div.style.backgroundImage = "url(assets/spinMonkey.gif)";
+  //   div.style.height = 200 + "px";
+  //   div.style.width = 200 + "px";
+  //   setTimeout(() => {
+  //     monkeyYumOff();
+  //   }, 2000);
+  // });
   div.addEventListener("mouseleave", function () {
-    div.style.backgroundImage = "url(assets/spinMonkey.gif)";
-    div.style.height = 215 + "px";
-    div.style.width = 215 + "px";
     setTimeout(() => {
+      div.style.backgroundImage = "url(assets/spinMonkey.gif)";
+      div.style.height = 200 + "px";
+      div.style.width = 200 + "px";
       monkeyYumOff();
     }, 2000);
   });
