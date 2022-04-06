@@ -23,7 +23,7 @@ function restart() {
   startingMin = prompt("How long do you want to play, enter 1 ,2 or 3 minutes");
   level = prompt("Difficulty Level: 1-Easy  2- Medium  3-Expert");
   if (startingMin == 1 || startingMin == 2 || startingMin == 3) {
-    time = 0.3 * 60;
+    time = startingMin * 60;
     game();
     button.style.display = "none";
   } else {
