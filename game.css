@@ -10,30 +10,30 @@
   display: block;
   position: fixed;
   height: 80px;
-  width: 120px;
+  width: 320px;
   background-color: rgb(33, 33, 33);
   color: white;
-  border-radius: 10px;
-  border: 4px dashed yellowgreen;
-  opacity: 90%;
+  border-radius: 20px;
+  border: 6px dashed yellowgreen;
+  opacity: 70%;
   text-align: center;
   top: 10px;
-  font-size: 12pt;
+  font-size: 16pt;
 }
 .ctc2 {
   display: block;
   position: fixed;
-  margin-left: 31%;
+  margin-left: 61%;
   height: 80px;
-  width: 120px;
+  width: 320px;
   background-color: rgb(33, 33, 33);
   color: white;
-  border-radius: 10px;
-  border: 4px dashed yellowgreen;
-  opacity: 90%;
+  border-radius: 20px;
+  border: 6px dashed yellowgreen;
+  opacity: 70%;
   text-align: center;
   top: 10px;
-  font-size: 12pt;
+  font-size: 16pt;
 }
 
 h1 {
