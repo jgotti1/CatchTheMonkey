@@ -11,6 +11,7 @@ let lowtime = document.querySelector(".timer");
 let button = document.querySelector(".ctc");
 let button2 = document.querySelector(".ctc2");
 let speed;
+let level;
 let bkmusic = document.getElementById("bkmusic");
 let monkeyYum = document.getElementById("monkeyYum");
 
@@ -20,10 +21,17 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 function restart() {
   startingMin = prompt("How long do you want to play, enter 1 ,2 or 3 minutes");
+  level = prompt("Difficulty Level: 1-Easy  2- Medium  3-Expert");
   if (startingMin == 1 || startingMin == 2 || startingMin == 3) {
     time = 0.3 * 60;
     game();
     button.style.display = "none";
+  } else {
+    alert("that is not a valid choice");
+    stopGame();
+  }
+  if (level == 1 || level == 2 || level == 3) {
+    level = level * 3;
   } else {
     alert("that is not a valid choice");
     stopGame();
@@ -125,7 +133,8 @@ function stopGame() {
 
 function moveMonkey() {
   // control speed //
-  let speed = Math.random() * 5 + 2;
+  console.log(level);
+  speed = Math.random() * level + level;
   // control speed * x + x  (x = lowest speed plus x random )
   let monkey = document.querySelector(".monkey");
   let cords = playArea.getBoundingClientRect();
