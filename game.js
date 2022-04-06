@@ -14,11 +14,11 @@ let bkmusic = document.getElementById("bkmusic");
 let monkeyYum = document.getElementById("monkeyYum");
 
 //set amount of minutes to play game//
+
 function restart() {
   startingMin = prompt("How long do you want to play, enter 1 ,2 or 3 minutes");
   if (startingMin == 1 || startingMin == 2 || startingMin == 3) {
     time = 0.3 * 60;
-    console.log(time);
     game();
     button.style.display = "none";
   } else {
@@ -73,7 +73,7 @@ function game() {
     div.style.width = 215 + "px";
     setTimeout(() => {
       monkeyYumOff();
-    }, 1500);
+    }, 2000);
   });
   //count down clock//
   setInterval(updateCountDown, 1000);
@@ -104,8 +104,8 @@ function stopGame() {
   playArea.style.backgroundImage = "none";
   playArea.style.cursor = "none";
   body.style.backgroundImage = "url(assets/gameover.jpg)";
-  let monkey = document.querySelector(".monkey");
-  monkey.style.backgroundImage = "none";
+  // let monkey = document.querySelector(".monkey");
+  // monkey.style.backgroundImage = "none";
   body.style.backgroundPosition = "left";
   button.innerText = "Game Over Click her to play again ... 🐵🐵🐵";
   button.style.border = "3px dashed red";

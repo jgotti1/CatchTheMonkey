@@ -6,7 +6,7 @@
   position: absolute;
   top: 10px;
 }
-button {
+.ctc {
   display: block;
   position: fixed;
   height: 80px;
@@ -20,6 +20,7 @@ button {
   top: 10px;
   font-size: 12pt;
 }
+
 h1 {
   text-align: center;
   color: rgb(3, 62, 3);

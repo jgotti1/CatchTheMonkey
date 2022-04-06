@@ -1,1 +1,3 @@
 # CatchTheMonkey
+
+onclick="restart()"
