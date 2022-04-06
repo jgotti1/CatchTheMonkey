@@ -3,17 +3,28 @@ let playArea = document.querySelector(".playArea");
 let messageArea = document.querySelectorAll(".messageArea span");
 let score = 0;
 //set game running time
-let startingMin = 3;
-let time = startingMin * 60;
+let startingMin = 0;
 let countdown = document.querySelector(".timer");
+let time = startingMin * 60;
 let body = document.querySelector("body");
 let lowtime = document.querySelector(".timer");
 let button = document.querySelector(".ctc");
 let speed;
+
 function restart() {
-  game();
-  button.style.display = "none";
+  console.log("hello");
+  startingMin = prompt("How long do you want to play, ebter 1 ,2 ,3 minutes");
+  if (startingMin == 1 || startingMin == 2 || startingMin == 3) {
+    time = startingMin * 60;
+    console.log(time);
+    game();
+    button.style.display = "none";
+  } else {
+    alert("that is not a valid choice");
+    stopGame();
+  }
 }
+
 //create monkey div//
 function game() {
   let div = document.createElement("div");
@@ -44,25 +55,27 @@ function game() {
     countdown.innerHTML = `${minutes}:${seconds}`;
     time--;
 
-    if (time < 0) {
-      time = 0;
-
-      stopGame();
+    if (time < 10) {
+      lowtime.style.color = "red";
+      if (time <= 0) {
+        time = 0;
+        stopGame();
+      }
     }
     //stop game when time expires//
-    function stopGame() {
-      playArea.style.backgroundImage = "none";
-      playArea.style.cursor = "none";
-      body.style.backgroundImage = "url(assets/gameover.jpg)";
-      div.style.backgroundImage = "none";
-      body.style.backgroundPosition = "left";
-      button.innerText = "Game Over Click her to play again ... 🐵🐵🐵";
-      button.style.border = "3px dashed red";
-      button.style.display = "block";
-      button.addEventListener("click", function () {
-        location.reload();
-      });
-    }
+    // function stopGame() {
+    //   playArea.style.backgroundImage = "none";
+    //   playArea.style.cursor = "none";
+    //   body.style.backgroundImage = "url(assets/gameover.jpg)";
+    //   div.style.backgroundImage = "none";
+    //   body.style.backgroundPosition = "left";
+    //   button.innerText = "Game Over Click her to play again ... 🐵🐵🐵";
+    //   button.style.border = "3px dashed red";
+    //   button.style.display = "block";
+    //   button.addEventListener("click", function () {
+    //     location.reload();
+    //   });
+    // }
   }
 
   div.steps = Math.random() * 20;
@@ -72,6 +85,20 @@ function game() {
 
 function newFunction() {
   setTimeout("", 5000);
+}
+
+function stopGame() {
+  playArea.style.backgroundImage = "none";
+  playArea.style.cursor = "none";
+  body.style.backgroundImage = "url(assets/gameover.jpg)";
+  // div.style.backgroundImage = "none";
+  body.style.backgroundPosition = "left";
+  button.innerText = "Game Over Click her to play again ... 🐵🐵🐵";
+  button.style.border = "3px dashed red";
+  button.style.display = "block";
+  button.addEventListener("click", function () {
+    location.reload();
+  });
 }
 
 function moveMonkey() {
