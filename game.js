@@ -140,7 +140,7 @@ function stopGame() {
 
 function moveMonkey() {
   // control speed //
-  console.log(level);
+
   speed = Math.random() * level + level;
   // control speed * x + x  (x = lowest speed plus x random )
   let monkey = document.querySelector(".monkey");
