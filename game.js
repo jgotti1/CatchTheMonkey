@@ -1,171 +1,325 @@
 "use strict";
-let playArea = document.querySelector(".playArea");
-let messageArea = document.querySelectorAll(".messageArea span");
+
+const playArea = document.getElementById("playArea");
+const scoreEl = document.getElementById("score");
+const timerEl = document.getElementById("timer");
+const bestEl = document.getElementById("best");
+const menu = document.getElementById("menu");
+const endScreen = document.getElementById("endScreen");
+const finalScoreEl = document.getElementById("finalScore");
+const newBestEl = document.getElementById("newBest");
+const comboWrap = document.getElementById("comboWrap");
+const comboEl = document.getElementById("combo");
+const muteBtn = document.getElementById("muteBtn");
+
+const bkmusic = document.getElementById("bkmusic");
+const monkeyYum = document.getElementById("monkeyYum");
+const gameOverSound = document.getElementById("gameOver");
+
+// Difficulty 1/2/3 -> monkey speed range in pixels per second
+const SPEEDS = { 1: 180, 2: 360, 3: 540 };
+
+let selectedMinutes = 1;
+let selectedLevel = 1;
 let score = 0;
-//set game running time
-let startingMin = 0;
-let countdown = document.querySelector(".timer");
-let time = startingMin * 60;
-let body = document.querySelector("body");
-let lowtime = document.querySelector(".timer");
-let button = document.querySelector(".ctc");
-let button2 = document.querySelector(".ctc2");
-let speed;
-let level;
-let bkmusic = document.getElementById("bkmusic");
-let monkeyYum = document.getElementById("monkeyYum");
+let timeLeft = 0;
+let bestScore = 0;
+let muted = false;
+let running = false;
+let monkey = null;
+let timerId = null;
+let rafId = null;
+let lastFrame = 0;
+let fedTimeout = null;
+let combo = 0;
+let sinceLastHit = 0;
+let goldenEl = null;
+let goldenTimer = 0; // seconds until the next golden banana appears / disappears
 
-//set amount of minutes to play game//
-window.addEventListener("DOMContentLoaded", () => {
-  button2.style.display = "none";
+// localStorage can throw (private browsing), so never let it break the game
+try {
+  bestScore = Number(localStorage.getItem("ftm-best")) || 0;
+} catch (e) {}
+bestEl.textContent = bestScore;
+
+/* ---------- menu ---------- */
+
+function setupChoices(containerId, onPick) {
+  const container = document.getElementById(containerId);
+  container.addEventListener("click", (e) => {
+    const btn = e.target.closest(".choice");
+    if (!btn) return;
+    container.querySelectorAll(".choice").forEach((b) => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    onPick(Number(btn.dataset.value));
+  });
+}
+setupChoices("timeChoices", (v) => (selectedMinutes = v));
+setupChoices("levelChoices", (v) => (selectedLevel = v));
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("againBtn").addEventListener("click", () => {
+  endScreen.classList.add("hidden");
+  menu.classList.remove("hidden");
+  document.body.classList.remove("gameover");
+  playArea.classList.remove("over");
 });
-function restart() {
-  startingMin = prompt("How long do you want to play, enter 1 ,2 or 3 minutes");
-  level = prompt("Difficulty Level: 1-Easy  2- Medium  3-Expert");
-  if (startingMin == 1 || startingMin == 2 || startingMin == 3) {
-    time = startingMin * 60;
-    game();
-    button.style.display = "none";
-  } else {
-    alert("that is not a valid choice");
-    stopGame();
-  }
-  if (level == 1 || level == 2 || level == 3) {
-    level = level * 3;
-  } else {
-    alert("that is not a valid choice");
-    stopGame();
-  }
+
+muteBtn.addEventListener("click", () => {
+  muted = !muted;
+  muteBtn.textContent = muted ? "🔇" : "🔊";
+  bkmusic.muted = muted;
+  monkeyYum.muted = muted;
+  gameOverSound.muted = muted;
+});
+
+/* ---------- sound ---------- */
+
+function playSound(audio) {
+  audio.currentTime = 0;
+  // play() returns a promise that can reject if the browser blocks audio
+  const p = audio.play();
+  if (p && p.catch) p.catch(() => {});
 }
-//background music//
-function musicPlay() {
-  bkmusic.play();
-  bkmusic.volume = 1.0;
-}
-function musicStop() {
+
+function stopSounds() {
   bkmusic.pause();
-  bkmusic.volume = 0.0;
+  bkmusic.currentTime = 0;
   monkeyYum.pause();
-  monkeyYum.volume = 0.0;
 }
-//monkey Yum click sound/
-function monkeyYumPlay() {
-  monkeyYum.play();
-  monkeyYum.volume = 1.0;
-  bkmusic.volume = 0.25;
+
+/* ---------- game flow ---------- */
+
+function startGame() {
+  score = 0;
+  combo = 0;
+  sinceLastHit = 0;
+  goldenTimer = 6 + Math.random() * 6;
+  updateCombo();
+  timeLeft = selectedMinutes * 60;
+  scoreEl.textContent = score;
+  updateTimerDisplay();
+
+  menu.classList.add("hidden");
+  endScreen.classList.add("hidden");
+  playArea.classList.add("playing");
+
+  createMonkey();
+
+  // Starting audio inside the tap handler is what lets iPad/Safari play it
+  bkmusic.volume = 1;
+  playSound(bkmusic);
+
+  running = true;
+  timerId = setInterval(tick, 1000);
+  lastFrame = performance.now();
+  rafId = requestAnimationFrame(moveMonkey);
 }
-function monkeyYumOff() {
-  monkeyYum.play();
-  monkeyYum.volume = 0;
-  bkmusic.volume = 1.0;
+
+function tick() {
+  timeLeft--;
+  updateTimerDisplay();
+  if (timeLeft <= 0) endGame();
 }
-//create monkey div//
-function game() {
-  musicPlay();
-  //setup div for moving monkey//
-  let div = document.createElement("div");
-  div.classList.add("monkey");
-  playArea.appendChild(div);
-  div.x = div.offsetLeft;
-  div.y = div.offsetTop;
-  // on click + score and "X" monkey
-  div.addEventListener("click", function () {
-    div.style.height = 220 + "px";
-    div.style.width = 220 + "px";
-    div.style.backgroundImage = "url(assets/monkeyBananaSpin.gif)";
-    score = score + 1;
-    messageArea[0].innerText = score;
-    monkeyYumPlay();
+
+function updateTimerDisplay() {
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = String(timeLeft % 60).padStart(2, "0");
+  timerEl.textContent = `${minutes}:${seconds}`;
+  timerEl.classList.toggle("low", timeLeft <= 10);
+}
+
+function endGame() {
+  running = false;
+  clearInterval(timerId);
+  cancelAnimationFrame(rafId);
+  stopSounds();
+  playSound(gameOverSound);
+
+  if (monkey) monkey.remove();
+  monkey = null;
+  removeGolden();
+  comboWrap.classList.add("hidden");
+
+  const isNewBest = score > bestScore;
+  if (isNewBest) {
+    bestScore = score;
+    bestEl.textContent = bestScore;
+    try {
+      localStorage.setItem("ftm-best", bestScore);
+    } catch (e) {}
+  }
+
+  finalScoreEl.textContent = score;
+  newBestEl.classList.toggle("hidden", !isNewBest);
+  playArea.classList.remove("playing");
+  playArea.classList.add("over");
+  document.body.classList.add("gameover");
+  endScreen.classList.remove("hidden");
+}
+
+/* ---------- monkey ---------- */
+
+function createMonkey() {
+  // Scale the monkey to the screen so it isn't huge on a small display
+  const size = Math.round(
+    Math.min(220, Math.max(110, Math.min(playArea.clientWidth, playArea.clientHeight) * 0.28))
+  );
+  playArea.style.setProperty("--monkey-size", size + "px");
+
+  monkey = document.createElement("div");
+  monkey.className = "monkey";
+  monkey.body = document.createElement("div");
+  monkey.body.className = "monkey-body";
+  monkey.appendChild(monkey.body);
+  monkey.size = size;
+  monkey.x = (playArea.clientWidth - size) / 2;
+  monkey.y = (playArea.clientHeight - size) / 2;
+  monkey.dx = 0;
+  monkey.dy = 0;
+  monkey.stepsLeft = 0;
+  playArea.appendChild(monkey);
+
+  // pointerdown works for mouse, finger and Apple Pencil, and fires instantly
+  // (no 300ms tap delay like "click" can have on older iPads)
+  monkey.addEventListener("pointerdown", feedMonkey);
+}
+
+function feedMonkey(e) {
+  e.preventDefault();
+  if (!running) return;
+  // Combo: hits within 2 seconds of each other build a multiplier (max x3)
+  combo = sinceLastHit < 2 ? combo + 1 : 1;
+  sinceLastHit = 0;
+  const multiplier = Math.min(3, 1 + Math.floor(combo / 5));
+  score += multiplier;
+  scoreEl.textContent = score;
+  updateCombo();
+
+  // restart the spin animation even if he was already spinning
+  monkey.classList.remove("fed");
+  void monkey.offsetWidth;
+  monkey.classList.add("fed");
+  clearTimeout(fedTimeout);
+  fedTimeout = setTimeout(() => monkey && monkey.classList.remove("fed"), 700);
+
+  const rect = playArea.getBoundingClientRect();
+  showPop(e.clientX - rect.left, e.clientY - rect.top, `+${multiplier} 🍌`);
+
+  playSound(monkeyYum);
+  // duck the music briefly so the yum sound is heard
+  bkmusic.volume = 0.3;
+  setTimeout(() => (bkmusic.volume = 1), 800);
+}
+
+function updateCombo() {
+  const multiplier = Math.min(3, 1 + Math.floor(combo / 5));
+  comboEl.textContent = multiplier;
+  comboWrap.classList.toggle("hidden", multiplier < 2);
+}
+
+function showPop(x, y, text) {
+  const pop = document.createElement("div");
+  pop.className = "pop";
+  pop.textContent = text;
+  pop.style.left = x - 30 + "px";
+  pop.style.top = y - 30 + "px";
+  playArea.appendChild(pop);
+  setTimeout(() => pop.remove(), 700);
+}
+
+function pickDirection() {
+  // 0 right, 1 left, 2 down, 3 up (same four directions as the original)
+  const dir = Math.floor(Math.random() * 4);
+  // the monkey gets faster the more you score (up to 2x)
+  const speedUp = 1 + Math.min(score / 60, 1);
+  const speed = SPEEDS[selectedLevel] * (1 + Math.random()) * speedUp;
+  monkey.dx = dir === 0 ? speed : dir === 1 ? -speed : 0;
+  monkey.dy = dir === 2 ? speed : dir === 3 ? -speed : 0;
+  monkey.stepsLeft = 0.2 + Math.random() * 0.8; // seconds to keep going
+}
+
+function moveMonkey(now) {
+  if (!running) return;
+  // dt = seconds since last frame, so the speed is the same on a 60Hz
+  // screen and a 120Hz iPad Pro
+  const dt = Math.min((now - lastFrame) / 1000, 0.05);
+  lastFrame = now;
+
+  sinceLastHit += dt;
+  if (combo > 0 && sinceLastHit >= 2) {
+    combo = 0;
+    updateCombo();
+  }
+  updateGolden(dt);
+
+  monkey.stepsLeft -= dt;
+  if (monkey.stepsLeft <= 0) pickDirection();
+
+  monkey.x += monkey.dx * dt;
+  monkey.y += monkey.dy * dt;
+
+  // stay inside the play area; pick a new direction when we hit a wall
+  const maxX = playArea.clientWidth - monkey.size;
+  const maxY = playArea.clientHeight - monkey.size;
+  if (monkey.x < 0 || monkey.x > maxX || monkey.y < 0 || monkey.y > maxY) {
+    monkey.x = Math.min(Math.max(monkey.x, 0), maxX);
+    monkey.y = Math.min(Math.max(monkey.y, 0), maxY);
+    pickDirection();
+  }
+
+  monkey.style.transform = `translate(${monkey.x}px, ${monkey.y}px)`;
+  rafId = requestAnimationFrame(moveMonkey);
+}
+
+/* ---------- golden banana ---------- */
+
+function updateGolden(dt) {
+  goldenTimer -= dt;
+  if (goldenTimer > 0) return;
+  if (goldenEl) {
+    removeGolden(); // ran out of time
+    goldenTimer = 8 + Math.random() * 8;
+  } else {
+    spawnGolden();
+    goldenTimer = 2.5; // how long it stays on screen
+  }
+}
+
+function spawnGolden() {
+  goldenEl = document.createElement("div");
+  goldenEl.className = "golden";
+  goldenEl.textContent = "🍌";
+  goldenEl.style.left = Math.random() * (playArea.clientWidth - 84) + "px";
+  goldenEl.style.top = Math.random() * (playArea.clientHeight - 84) + "px";
+  goldenEl.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    if (!running) return;
+    score += 5;
+    scoreEl.textContent = score;
+    const rect = playArea.getBoundingClientRect();
+    showPop(e.clientX - rect.left, e.clientY - rect.top, "+5 ⭐");
+    playSound(monkeyYum);
+    removeGolden();
+    goldenTimer = 8 + Math.random() * 8;
   });
-  // div.addEventListener("mouseleave", function () {
-  //   div.style.backgroundImage = "url(assets/spinMonkey.gif)";
-  //   div.style.height = 200 + "px";
-  //   div.style.width = 200 + "px";
-  //   setTimeout(() => {
-  //     monkeyYumOff();
-  //   }, 2000);
-  // });
-  div.addEventListener("mouseleave", function () {
-    setTimeout(() => {
-      div.style.backgroundImage = "url(assets/spinMonkey.gif)";
-      div.style.height = 200 + "px";
-      div.style.width = 200 + "px";
-      monkeyYumOff();
-    }, 2000);
-  });
-  //count down clock//
-  setInterval(updateCountDown, 1000);
-  function updateCountDown() {
-    let minutes = Math.floor(time / 60);
-    let seconds = time % 60;
-    seconds = seconds < 10 ? "0" + seconds : seconds;
-    countdown.innerHTML = `${minutes}:${seconds}`;
-    time--;
-
-    if (time < 10) {
-      lowtime.style.color = "red";
-      if (time <= 0) {
-        time = 0;
-        document.getElementById("gameOver").play();
-        stopGame();
-      }
-    }
-  }
-
-  div.steps = Math.random() * 20;
-  div.direction = Math.floor(Math.random() * 4);
-  window.requestAnimationFrame(moveMonkey);
-}
-//stop game options/
-function stopGame() {
-  musicStop();
-  playArea.style.backgroundImage = "none";
-  playArea.style.cursor = "none";
-  body.style.backgroundImage = "url(assets/gameover.jpg)";
-  let monkey = document.querySelector(".monkey");
-  monkey.style.backgroundImage = "none";
-  body.style.backgroundPosition = "left";
-  button2.innerText = "Game Over Click her to play again ... 🐵🐵🐵";
-  button2.style.border = "3px dashed red";
-  button2.style.display = "block";
-  button2.addEventListener("click", function () {
-    location.reload();
-  });
-  setTimeout(() => {
-    let gameOver = document.getElementById("gameOver");
-    gameOver.pause();
-    gameOver.volume = 0.0;
-  }, 3000);
+  playArea.appendChild(goldenEl);
 }
 
-function moveMonkey() {
-  // control speed //
-
-  speed = Math.random() * level + level;
-  // control speed * x + x  (x = lowest speed plus x random )
-  let monkey = document.querySelector(".monkey");
-  let cords = playArea.getBoundingClientRect();
-  monkey.steps--;
-  if (monkey.steps < 0) {
-    monkey.direction = Math.floor(Math.random() * 4);
-    monkey.steps = Math.random() * 20;
-  }
-  if (monkey.direction == 0 && monkey.x < cords.right - 150) {
-    monkey.x += speed;
-  }
-
-  if (monkey.direction == 1 && monkey.x > cords.left) {
-    monkey.x -= speed;
-  }
-  if (monkey.direction == 2 && monkey.y < cords.bottom - 150) {
-    monkey.y += speed;
-  }
-
-  if (monkey.direction == 3 && monkey.y > cords.top) {
-    monkey.y -= speed;
-  }
-
-  monkey.style.top = monkey.y + "px";
-  monkey.style.left = monkey.x + "px";
-  window.requestAnimationFrame(moveMonkey);
+function removeGolden() {
+  if (goldenEl) goldenEl.remove();
+  goldenEl = null;
 }
+
+/* Pause the game clock if the tab/app is hidden (e.g. iPad app switch) */
+document.addEventListener("visibilitychange", () => {
+  if (!running) return;
+  if (document.hidden) {
+    clearInterval(timerId);
+    bkmusic.pause();
+  } else {
+    timerId = setInterval(tick, 1000);
+    lastFrame = performance.now();
+    playSound(bkmusic);
+  }
+});

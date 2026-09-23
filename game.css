@@ -1,105 +1,260 @@
-/* * {
-  border: 2px solid red;
-} */
-.start {
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
   margin: 0;
-  position: absolute;
-  top: 10px;
-}
-.ctc {
-  display: block;
-  position: fixed;
-  height: 80px;
-  width: 320px;
-  background-color: rgb(33, 33, 33);
-  color: white;
-  border-radius: 20px;
-  border: 6px dashed yellowgreen;
-  opacity: 70%;
-  text-align: center;
-  top: 10px;
-  font-size: 16pt;
-}
-.ctc2 {
-  display: block;
-  position: fixed;
-  margin-left: 61%;
-  height: 80px;
-  width: 320px;
-  background-color: rgb(33, 33, 33);
-  color: white;
-  border-radius: 20px;
-  border: 6px dashed yellowgreen;
-  opacity: 70%;
-  text-align: center;
-  top: 10px;
-  font-size: 16pt;
-}
-
-h1 {
-  text-align: center;
-  color: rgb(3, 62, 3);
-  font-size: 38pt;
-  font-family: fantasy;
-  text-shadow: 2px 2px whitesmoke;
-  height: 30px;
-  margin-top: 10px;
-}
-
-h2 {
-  text-align: center;
-  background-color: yellowgreen;
-  width: 1000px;
-  margin: auto;
-  background-color: yellowgreen;
-  border-radius: 20px;
-  border: 2px dotted darkgreen;
-}
-
-.monkey {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  background-image: url("assets/spinMonkey.gif");
-  height: 200px;
-  width: 200px;
+  height: 100%;
 }
 
 body {
   background-image: url("assets/jungle.jpg");
   background-repeat: no-repeat;
   background-size: cover;
-}
-.instruct {
-  height: 50px;
-}
-.messageArea {
-  height: 35px;
-  width: 320px;
-  margin-left: auto;
-  margin-top: 30px;
-  color: black;
+  background-position: center;
   font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
-  font-size: 20pt;
+  /* stop iPad from zooming / selecting / bouncing while tapping */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+body.gameover {
+  background-image: url("assets/gameover.jpg");
+  background-position: left;
+}
+
+/* The whole page is one column: title, score bar, then a play area that
+   fills whatever screen space is left (works on iPad in either rotation). */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+    max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+  gap: 8px;
+}
+
+.title {
+  margin: 0;
   text-align: center;
-  margin: auto;
+  color: rgb(3, 62, 3);
+  font-size: clamp(22px, 4.5vw, 44px);
+  font-family: fantasy;
+  text-shadow: 2px 2px whitesmoke;
+}
+
+.hud {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 6px 16px;
+  margin: 0 auto;
+  font-size: clamp(16px, 2.6vw, 26px);
   background-color: yellowgreen;
   border-radius: 20px;
   border: 2px dotted darkgreen;
 }
 
-.playArea {
-  border-radius: 5%;
-  background-image: url("assets/jungleGhost.png");
-  height: 800px;
-  width: 1400px;
-  cursor: url("assets/bananna.png"), auto;
-  margin: auto;
-  overflow: hidden;
-  border: 2px dotted darkgreen;
+.hud .low {
+  color: red;
 }
 
-div,
-.monkey {
+.icon-btn {
+  font-size: 1.2em;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  border: 2px solid darkgreen;
+  background: whitesmoke;
+  cursor: pointer;
+}
+
+.playArea {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border-radius: 24px;
+  background-image: url("assets/jungleGhost.png");
+  background-size: cover;
+  background-position: center;
+  border: 2px dotted darkgreen;
   overflow: hidden;
+  touch-action: none;
+}
+
+/* Fun banana cursor only where there is a mouse (not on iPad) */
+@media (hover: hover) and (pointer: fine) {
+  .playArea.playing {
+    cursor: url("assets/bananna.png"), auto;
+  }
+}
+
+.playArea.over {
+  background-image: none;
+  cursor: default;
+}
+
+.monkey {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--monkey-size, 200px);
+  height: var(--monkey-size, 200px);
+  will-change: transform;
+}
+
+/* inner element so the spin doesn't fight with the translate that moves .monkey */
+.monkey-body {
+  width: 100%;
+  height: 100%;
+  background-image: url("assets/spinMonkey.gif");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.monkey.fed .monkey-body {
+  background-image: url("assets/monkeyBananaSpin.gif");
+  animation: fastspin 0.18s linear 4;
+}
+
+@keyframes fastspin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.golden {
+  position: absolute;
+  z-index: 5;
+  width: 84px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 247, 0, 0.9), rgba(255, 200, 0, 0.2) 70%);
+  animation: glow 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1.15);
+  }
+}
+
+.pop {
+  position: absolute;
+  pointer-events: none;
+  font-size: 32px;
+  color: #fff700;
+  text-shadow: 2px 2px 0 darkgreen;
+  animation: pop 0.7s ease-out forwards;
+}
+
+@keyframes pop {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-60px) scale(1.6);
+  }
+}
+
+/* Start / game-over screens */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  overflow-y: auto;
+}
+
+.overlay h2 {
+  margin: 0;
+  max-width: 700px;
+  font-size: clamp(20px, 3.5vw, 36px);
+  font-weight: normal;
+}
+
+.overlay p {
+  margin: 0;
+  font-size: clamp(16px, 2.4vw, 24px);
+}
+
+.overlay .label {
+  margin-top: 10px;
+  color: yellowgreen;
+}
+
+.final b {
+  color: #fff700;
+  font-size: 1.4em;
+}
+
+.choices {
+  display: flex;
+  gap: 10px;
+}
+
+.choice {
+  min-width: 96px;
+  min-height: 52px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: clamp(16px, 2.4vw, 22px);
+  color: white;
+  background: rgb(33, 33, 33);
+  border: 3px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.choice.selected {
+  border-color: yellowgreen;
+  background: darkgreen;
+}
+
+.big-btn {
+  margin-top: 18px;
+  min-height: 72px;
+  padding: 0 28px;
+  font: inherit;
+  font-size: clamp(18px, 3vw, 28px);
+  color: white;
+  background-color: rgb(33, 33, 33);
+  border-radius: 20px;
+  border: 6px dashed yellowgreen;
+  cursor: pointer;
+}
+
+.big-btn:active,
+.choice:active {
+  transform: scale(0.97);
+}
+
+.hidden {
+  display: none !important;
 }

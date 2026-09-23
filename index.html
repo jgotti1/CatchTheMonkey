@@ -2,60 +2,68 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" href="game.css" />
     <title>Feed The Monkey</title>
   </head>
   <body>
-    <audio
-      id="bkmusic"
-      src="assets/circus.mp3"
-      loop="loop"
-      hidden="hidden"
-    ></audio>
-    <audio
-      id="gameOver"
-      src="assets/gameOver.wav"
-      hidden="hidden"
-      loop="false"
-    ></audio>
-    <audio
-      id="monkeyYum"
-      src="assets/monkeyYum.wav"
-      hidden="hidden"
-      loop="false"
-    ></audio>
-    <div>
-      <span class="start"><button class="ctc2"></button></span>
-      <h1 class="title">
-        - Feed the Monkey
-        <span> ! - </span
-        ><span class="start"
-          ><button class="ctc" onclick="restart()">
-            Click here to start feeding me 🐵🍌
-          </button></span
-        >
-      </h1>
-    </div>
-    <br />
-    <div class="instruct">
-      <h2>
-        Feed the monkey as many bananas as you can until time expires. Click to
-        feed and score !
-      </h2>
-      <h3>Click to feed him and score a point</h3>
-    </div>
-    <div class="messageArea">
-      🍌 Score: <span class="score">0</span> 🙊 Time: <span class="timer"></span
-      ><span class="start"></span>
-    </div>
-    <br />
-    <div>
-      <div class="playArea">
-        <div class="startgame"></div>
+    <audio id="bkmusic" src="assets/circus.mp3" loop preload="auto"></audio>
+    <audio id="gameOver" src="assets/gameOver.wav" preload="auto"></audio>
+    <audio id="monkeyYum" src="assets/monkeyYum.wav" preload="auto"></audio>
+
+    <main class="app">
+      <h1 class="title">🐵 Feed the Monkey! 🍌</h1>
+
+      <div class="hud">
+        <span>🍌 Score: <b id="score">0</b></span>
+        <span>🙊 Time: <b id="timer">0:00</b></span>
+        <span>🏆 Best: <b id="best">0</b></span>
+        <span id="comboWrap" class="hidden">🔥 Combo x<b id="combo">1</b></span>
+        <button id="muteBtn" class="icon-btn" aria-label="Toggle sound">
+          🔊
+        </button>
       </div>
-    </div>
+
+      <div class="playArea" id="playArea">
+        <!-- Start screen -->
+        <section class="overlay" id="menu">
+          <h2>Feed the monkey as many bananas as you can before time runs out!</h2>
+          <p>Tap the monkey to feed him. Keep tapping fast for combo bonuses, and grab the golden bananas for +5!</p>
+
+          <p class="label">How long?</p>
+          <div class="choices" id="timeChoices">
+            <button data-value="1" class="choice selected">1 min</button>
+            <button data-value="2" class="choice">2 min</button>
+            <button data-value="3" class="choice">3 min</button>
+          </div>
+
+          <p class="label">Difficulty</p>
+          <div class="choices" id="levelChoices">
+            <button data-value="1" class="choice selected">Easy</button>
+            <button data-value="2" class="choice">Medium</button>
+            <button data-value="3" class="choice">Expert</button>
+          </div>
+
+          <button id="startBtn" class="big-btn">
+            Start feeding me 🐵🍌
+          </button>
+        </section>
+
+        <!-- Game over screen -->
+        <section class="overlay hidden" id="endScreen">
+          <h2>Game Over!</h2>
+          <p class="final">You fed the monkey <b id="finalScore">0</b> bananas</p>
+          <p id="newBest" class="hidden">🎉 New best score! 🎉</p>
+          <button id="againBtn" class="big-btn">Play again 🐵🐵🐵</button>
+        </section>
+      </div>
+    </main>
+
     <script src="game.js"></script>
   </body>
 </html>
