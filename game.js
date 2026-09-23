@@ -59,6 +59,7 @@ setupChoices("levelChoices", (v) => (selectedLevel = v));
 
 document.getElementById("startBtn").addEventListener("click", startGame);
 document.getElementById("againBtn").addEventListener("click", () => {
+  cleanupFinale();
   endScreen.classList.add("hidden");
   menu.classList.remove("hidden");
   document.body.classList.remove("gameover");
@@ -91,6 +92,7 @@ function stopSounds() {
 /* ---------- game flow ---------- */
 
 function startGame() {
+  cleanupFinale();
   score = 0;
   combo = 0;
   sinceLastHit = 0;
@@ -133,11 +135,10 @@ function endGame() {
   running = false;
   clearInterval(timerId);
   cancelAnimationFrame(rafId);
+  clearTimeout(fedTimeout);
   stopSounds();
   playSound(gameOverSound);
 
-  if (monkey) monkey.remove();
-  monkey = null;
   removeGolden();
   comboWrap.classList.add("hidden");
 
@@ -153,9 +154,81 @@ function endGame() {
   finalScoreEl.textContent = score;
   newBestEl.classList.toggle("hidden", !isNewBest);
   playArea.classList.remove("playing");
+
+  // Play a short monkey animation first, then show the score
+  playFinale(isNewBest);
+}
+
+/* ---------- end-of-game animations ---------- */
+
+let confettiEls = [];
+let finaleTimeout = null;
+
+function playFinale(isNewBest) {
+  monkey.classList.remove("fed");
+  monkey.classList.add("finale");
+  // glide to the middle (or the bottom, out of the way of the text, for a party)
+  monkey.x = (playArea.clientWidth - monkey.size) / 2;
+  monkey.y = isNewBest
+    ? playArea.clientHeight - monkey.size - 8
+    : (playArea.clientHeight - monkey.size) / 2;
+  monkey.style.transform = `translate(${monkey.x}px, ${monkey.y}px)`;
+
+  if (isNewBest) {
+    monkey.classList.add("party");
+    endScreen.classList.add("party");
+    launchConfetti();
+    finaleTimeout = setTimeout(showEndScreen, 1200);
+  } else {
+    monkey.classList.add("silly");
+    const bubble = document.createElement("div");
+    bubble.className = "finale-text";
+    bubble.textContent = "⏰ Time's up! 💫";
+    playArea.appendChild(bubble);
+    monkey.bubble = bubble;
+    finaleTimeout = setTimeout(showEndScreen, 2400);
+  }
+}
+
+function showEndScreen() {
+  if (monkey && monkey.bubble) monkey.bubble.remove();
   playArea.classList.add("over");
   document.body.classList.add("gameover");
   endScreen.classList.remove("hidden");
+  // the silly monkey has done his bit; the party monkey keeps dancing
+  if (monkey && !monkey.classList.contains("party")) {
+    monkey.style.display = "none";
+  }
+}
+
+function launchConfetti() {
+  const pieces = ["🍌", "🍌", "🍌", "🎉", "⭐"];
+  for (let i = 0; i < 90; i++) {
+    const el = document.createElement("div");
+    el.className = "confetti";
+    el.textContent = pieces[Math.floor(Math.random() * pieces.length)];
+    el.style.left = Math.random() * 100 + "vw";
+    el.style.fontSize = 20 + Math.random() * 30 + "px";
+    el.style.animationDuration = 2.5 + Math.random() * 3 + "s";
+    el.style.animationDelay = -Math.random() * 5 + "s";
+    el.style.setProperty("--drift", Math.random() * 160 - 80 + "px");
+    el.style.setProperty("--spin", Math.random() * 720 - 360 + "deg");
+    document.body.appendChild(el);
+    confettiEls.push(el);
+  }
+}
+
+// Clear everything the finale added (used by Play again / Start)
+function cleanupFinale() {
+  clearTimeout(finaleTimeout);
+  confettiEls.forEach((el) => el.remove());
+  confettiEls = [];
+  endScreen.classList.remove("party");
+  if (monkey) {
+    if (monkey.bubble) monkey.bubble.remove();
+    monkey.remove();
+    monkey = null;
+  }
 }
 
 /* ---------- monkey ---------- */

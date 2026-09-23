@@ -29,6 +29,7 @@ Three files plus `assets/` (images, GIFs, and audio referenced by relative path 
 ## Things to keep in mind
 
 - Gameplay mechanics in `game.js`: combo multiplier (hits within 2s, max x3), monkey speed scales with score (up to 2x), and a timed golden banana worth +5. The monkey's fast spin after a hit is a CSS animation on the inner `.monkey-body` (the outer `.monkey` is moved via `transform`, so the spin must not go on it).
+- End of game: `endGame()` calls `playFinale()` before the score screen — a silly flop animation, or (new best score) a dancing monkey plus banana confetti appended to `document.body`. `cleanupFinale()` must run before the next game to remove those elements.
 - Touch/iPad support is a design goal: input uses `pointerdown` (not `click`/`mouseleave`), and audio must be started from inside a user tap (`startGame`) or iOS Safari blocks it.
 - Monkey movement is time-based (`dt` in seconds, speeds in px/sec via the `SPEEDS` table) so it behaves the same at 60Hz and 120Hz; position is applied via `transform: translate`, and bounds use `playArea.clientWidth/Height`.
 - Best score persists in `localStorage` under `ftm-best`; access is wrapped in try/catch because it can throw in private browsing.
