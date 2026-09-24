@@ -34,7 +34,7 @@ The Vercel MCP connector only sees the project when called without a team ID or 
 
 ## Architecture
 
-Three files plus `assets/` (images, GIFs, and audio referenced by relative path from `game.css`, `index.html`, and `game.js`). `docs/preview.jpg` is only the portfolio thumbnail, not used by the game:
+Three files plus `favicon.svg` (browser tab icon, linked from `index.html` with a `?v=N` cache-buster) and `assets/` (images, GIFs, and audio referenced by relative path from `game.css`, `index.html`, and `game.js`). `docs/preview.jpg` is only the portfolio thumbnail, not used by the game:
 
 - `index.html` — static markup: HUD (score/timer/best/combo/mute), a `#playArea` containing two overlay screens (`#menu` start screen, `#endScreen` game over), and three `<audio>` elements.
 - `game.css` — the page is a flex column filling `100dvh`; `#playArea` takes the remaining space, so the game adapts to any screen size/rotation. Overlays are toggled with the `.hidden` class; the `body.gameover` and `.playArea.playing/.over` classes swap backgrounds and cursor.
