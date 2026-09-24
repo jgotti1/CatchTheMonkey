@@ -18,6 +18,8 @@ const gameOverSound = document.getElementById("gameOver");
 
 // Difficulty 1/2/3 -> monkey speed range in pixels per second
 const SPEEDS = { 1: 180, 2: 360, 3: 540 };
+// Difficulty 1/2/3 -> how many monkeys are running around
+const MONKEY_COUNT = { 1: 1, 2: 2, 3: 3 };
 
 let selectedMinutes = 1;
 let selectedLevel = 1;
@@ -26,15 +28,14 @@ let timeLeft = 0;
 let bestScore = 0;
 let muted = false;
 let running = false;
-let monkey = null;
+let monkeys = [];
 let timerId = null;
 let rafId = null;
 let lastFrame = 0;
-let fedTimeout = null;
 let combo = 0;
 let sinceLastHit = 0;
-let goldenEl = null;
-let goldenTimer = 0; // seconds until the next golden banana appears / disappears
+let goldens = []; // golden bananas currently on screen
+let goldenTimer = 0; // seconds until the next golden banana appears
 
 // localStorage can throw (private browsing), so never let it break the game
 try {
@@ -96,7 +97,7 @@ function startGame() {
   score = 0;
   combo = 0;
   sinceLastHit = 0;
-  goldenTimer = 6 + Math.random() * 6;
+  goldenTimer = 1 + Math.random() * 2;
   updateCombo();
   timeLeft = selectedMinutes * 60;
   scoreEl.textContent = score;
@@ -106,7 +107,7 @@ function startGame() {
   endScreen.classList.add("hidden");
   playArea.classList.add("playing");
 
-  createMonkey();
+  createMonkeys();
 
   // Starting audio inside the tap handler is what lets iPad/Safari play it
   bkmusic.volume = 1;
@@ -135,11 +136,10 @@ function endGame() {
   running = false;
   clearInterval(timerId);
   cancelAnimationFrame(rafId);
-  clearTimeout(fedTimeout);
   stopSounds();
   playSound(gameOverSound);
 
-  removeGolden();
+  removeGoldens();
   comboWrap.classList.add("hidden");
 
   const isNewBest = score > bestScore;
@@ -165,6 +165,11 @@ let confettiEls = [];
 let finaleTimeout = null;
 
 function playFinale(isNewBest) {
+  // only one monkey stars in the finale; the others leave
+  const monkey = monkeys[0];
+  monkeys.slice(1).forEach((m) => m.remove());
+  monkeys = [monkey];
+  clearTimeout(monkey.fedTimeout);
   monkey.classList.remove("fed");
   monkey.classList.add("finale");
   // glide to the middle (or the bottom, out of the way of the text, for a party)
@@ -191,6 +196,7 @@ function playFinale(isNewBest) {
 }
 
 function showEndScreen() {
+  const monkey = monkeys[0];
   if (monkey && monkey.bubble) monkey.bubble.remove();
   playArea.classList.add("over");
   document.body.classList.add("gameover");
@@ -224,43 +230,49 @@ function cleanupFinale() {
   confettiEls.forEach((el) => el.remove());
   confettiEls = [];
   endScreen.classList.remove("party");
-  if (monkey) {
-    if (monkey.bubble) monkey.bubble.remove();
-    monkey.remove();
-    monkey = null;
-  }
+  monkeys.forEach((m) => {
+    if (m.bubble) m.bubble.remove();
+    m.remove();
+  });
+  monkeys = [];
 }
 
 /* ---------- monkey ---------- */
 
-function createMonkey() {
-  // Scale the monkey to the screen so it isn't huge on a small display
-  const size = Math.round(
-    Math.min(220, Math.max(110, Math.min(playArea.clientWidth, playArea.clientHeight) * 0.28))
-  );
+function createMonkeys() {
+  const count = MONKEY_COUNT[selectedLevel];
+  // Scale the monkeys to the screen so they aren't huge on a small display
+  // (a bit smaller when there are several)
+  const base = Math.min(220, Math.max(110, Math.min(playArea.clientWidth, playArea.clientHeight) * 0.28));
+  const size = Math.round(count > 1 ? base * 0.85 : base);
   playArea.style.setProperty("--monkey-size", size + "px");
 
-  monkey = document.createElement("div");
-  monkey.className = "monkey";
-  monkey.body = document.createElement("div");
-  monkey.body.className = "monkey-body";
-  monkey.appendChild(monkey.body);
-  monkey.size = size;
-  monkey.x = (playArea.clientWidth - size) / 2;
-  monkey.y = (playArea.clientHeight - size) / 2;
-  monkey.dx = 0;
-  monkey.dy = 0;
-  monkey.stepsLeft = 0;
-  playArea.appendChild(monkey);
+  for (let i = 0; i < count; i++) {
+    const monkey = document.createElement("div");
+    monkey.className = "monkey";
+    monkey.body = document.createElement("div");
+    monkey.body.className = "monkey-body";
+    monkey.appendChild(monkey.body);
+    monkey.size = size;
+    // spread them out across the play area so they don't start stacked
+    monkey.x = ((playArea.clientWidth - size) * (i + 1)) / (count + 1);
+    monkey.y = (playArea.clientHeight - size) / 2;
+    monkey.dx = 0;
+    monkey.dy = 0;
+    monkey.stepsLeft = 0;
+    playArea.appendChild(monkey);
+    monkeys.push(monkey);
 
-  // pointerdown works for mouse, finger and Apple Pencil, and fires instantly
-  // (no 300ms tap delay like "click" can have on older iPads)
-  monkey.addEventListener("pointerdown", feedMonkey);
+    // pointerdown works for mouse, finger and Apple Pencil, and fires instantly
+    // (no 300ms tap delay like "click" can have on older iPads)
+    monkey.addEventListener("pointerdown", feedMonkey);
+  }
 }
 
 function feedMonkey(e) {
   e.preventDefault();
   if (!running) return;
+  const monkey = e.currentTarget;
   // Combo: hits within 2 seconds of each other build a multiplier (max x3)
   combo = sinceLastHit < 2 ? combo + 1 : 1;
   sinceLastHit = 0;
@@ -273,8 +285,8 @@ function feedMonkey(e) {
   monkey.classList.remove("fed");
   void monkey.offsetWidth;
   monkey.classList.add("fed");
-  clearTimeout(fedTimeout);
-  fedTimeout = setTimeout(() => monkey && monkey.classList.remove("fed"), 700);
+  clearTimeout(monkey.fedTimeout);
+  monkey.fedTimeout = setTimeout(() => monkey.classList.remove("fed"), 700);
 
   const rect = playArea.getBoundingClientRect();
   showPop(e.clientX - rect.left, e.clientY - rect.top, `+${multiplier} 🍌`);
@@ -301,7 +313,7 @@ function showPop(x, y, text) {
   setTimeout(() => pop.remove(), 700);
 }
 
-function pickDirection() {
+function pickDirection(monkey) {
   // 0 right, 1 left, 2 down, 3 up (same four directions as the original)
   const dir = Math.floor(Math.random() * 4);
   // the monkey gets faster the more you score (up to 2x)
@@ -326,46 +338,57 @@ function moveMonkey(now) {
   }
   updateGolden(dt);
 
-  monkey.stepsLeft -= dt;
-  if (monkey.stepsLeft <= 0) pickDirection();
+  for (const monkey of monkeys) {
+    monkey.stepsLeft -= dt;
+    if (monkey.stepsLeft <= 0) pickDirection(monkey);
 
-  monkey.x += monkey.dx * dt;
-  monkey.y += monkey.dy * dt;
+    monkey.x += monkey.dx * dt;
+    monkey.y += monkey.dy * dt;
 
-  // stay inside the play area; pick a new direction when we hit a wall
-  const maxX = playArea.clientWidth - monkey.size;
-  const maxY = playArea.clientHeight - monkey.size;
-  if (monkey.x < 0 || monkey.x > maxX || monkey.y < 0 || monkey.y > maxY) {
-    monkey.x = Math.min(Math.max(monkey.x, 0), maxX);
-    monkey.y = Math.min(Math.max(monkey.y, 0), maxY);
-    pickDirection();
+    // stay inside the play area; pick a new direction when we hit a wall
+    const maxX = playArea.clientWidth - monkey.size;
+    const maxY = playArea.clientHeight - monkey.size;
+    if (monkey.x < 0 || monkey.x > maxX || monkey.y < 0 || monkey.y > maxY) {
+      monkey.x = Math.min(Math.max(monkey.x, 0), maxX);
+      monkey.y = Math.min(Math.max(monkey.y, 0), maxY);
+      pickDirection(monkey);
+    }
+
+    monkey.style.transform = `translate(${monkey.x}px, ${monkey.y}px)`;
   }
-
-  monkey.style.transform = `translate(${monkey.x}px, ${monkey.y}px)`;
   rafId = requestAnimationFrame(moveMonkey);
 }
 
-/* ---------- golden banana ---------- */
+/* ---------- golden bananas ---------- */
+
+const GOLDEN_STAY = 3; // seconds a golden banana stays on screen
+const MAX_GOLDENS = 3;
 
 function updateGolden(dt) {
+  // each golden banana disappears when its time is up
+  for (const g of goldens.slice()) {
+    g.life -= dt;
+    if (g.life <= 0) removeGolden(g);
+  }
+  // and a new batch shows up every 1.5-4 seconds
   goldenTimer -= dt;
-  if (goldenTimer > 0) return;
-  if (goldenEl) {
-    removeGolden(); // ran out of time
-    goldenTimer = 8 + Math.random() * 8;
-  } else {
-    spawnGolden();
-    goldenTimer = 2.5; // how long it stays on screen
+  if (goldenTimer <= 0) {
+    // a random 1-3 bananas at once, never more than MAX_GOLDENS on screen
+    const room = MAX_GOLDENS - goldens.length;
+    const howMany = Math.min(room, 1 + Math.floor(Math.random() * 3));
+    for (let i = 0; i < howMany; i++) spawnGolden();
+    goldenTimer = 1.5 + Math.random() * 2.5;
   }
 }
 
 function spawnGolden() {
-  goldenEl = document.createElement("div");
-  goldenEl.className = "golden";
-  goldenEl.textContent = "🍌";
-  goldenEl.style.left = Math.random() * (playArea.clientWidth - 84) + "px";
-  goldenEl.style.top = Math.random() * (playArea.clientHeight - 84) + "px";
-  goldenEl.addEventListener("pointerdown", (e) => {
+  const el = document.createElement("div");
+  el.className = "golden";
+  el.textContent = "🍌";
+  el.style.left = Math.random() * (playArea.clientWidth - 84) + "px";
+  el.style.top = Math.random() * (playArea.clientHeight - 84) + "px";
+  const g = { el, life: GOLDEN_STAY };
+  el.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     if (!running) return;
     score += 5;
@@ -373,15 +396,19 @@ function spawnGolden() {
     const rect = playArea.getBoundingClientRect();
     showPop(e.clientX - rect.left, e.clientY - rect.top, "+5 ⭐");
     playSound(monkeyYum);
-    removeGolden();
-    goldenTimer = 8 + Math.random() * 8;
+    removeGolden(g);
   });
-  playArea.appendChild(goldenEl);
+  playArea.appendChild(el);
+  goldens.push(g);
 }
 
-function removeGolden() {
-  if (goldenEl) goldenEl.remove();
-  goldenEl = null;
+function removeGolden(g) {
+  g.el.remove();
+  goldens = goldens.filter((x) => x !== g);
+}
+
+function removeGoldens() {
+  goldens.slice().forEach(removeGolden);
 }
 
 /* Pause the game clock if the tab/app is hidden (e.g. iPad app switch) */
