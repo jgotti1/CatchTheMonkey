@@ -165,6 +165,10 @@ body.gameover {
   animation: pop 0.7s ease-out forwards;
 }
 
+.pop.minus {
+  color: #ff5a5a;
+}
+
 @keyframes pop {
   from {
     opacity: 1;

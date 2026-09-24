@@ -18,6 +18,11 @@ const gameOverSound = document.getElementById("gameOver");
 
 // Difficulty 1/2/3 -> monkey speed range in pixels per second
 const SPEEDS = { 1: 180, 2: 360, 3: 540 };
+// Points
+const MONKEY_POINTS = 3; // per monkey hit (before the combo multiplier)
+const GOLDEN_POINTS = 1; // per golden banana caught
+const MISS_PENALTY = 1; // lost when a golden banana disappears uncaught
+
 // Difficulty 1/2/3 -> how many monkeys are running around
 const MONKEY_COUNT = { 1: 1, 2: 2, 3: 3 };
 
@@ -277,7 +282,8 @@ function feedMonkey(e) {
   combo = sinceLastHit < 2 ? combo + 1 : 1;
   sinceLastHit = 0;
   const multiplier = Math.min(3, 1 + Math.floor(combo / 5));
-  score += multiplier;
+  const points = MONKEY_POINTS * multiplier;
+  score += points;
   scoreEl.textContent = score;
   updateCombo();
 
@@ -289,7 +295,7 @@ function feedMonkey(e) {
   monkey.fedTimeout = setTimeout(() => monkey.classList.remove("fed"), 700);
 
   const rect = playArea.getBoundingClientRect();
-  showPop(e.clientX - rect.left, e.clientY - rect.top, `+${multiplier} 🍌`);
+  showPop(e.clientX - rect.left, e.clientY - rect.top, `+${points} 🐵`);
 
   playSound(monkeyYum);
   // duck the music briefly so the yum sound is heard
@@ -303,9 +309,9 @@ function updateCombo() {
   comboWrap.classList.toggle("hidden", multiplier < 2);
 }
 
-function showPop(x, y, text) {
+function showPop(x, y, text, bad) {
   const pop = document.createElement("div");
-  pop.className = "pop";
+  pop.className = bad ? "pop minus" : "pop";
   pop.textContent = text;
   pop.style.left = x - 30 + "px";
   pop.style.top = y - 30 + "px";
@@ -368,7 +374,13 @@ function updateGolden(dt) {
   // each golden banana disappears when its time is up
   for (const g of goldens.slice()) {
     g.life -= dt;
-    if (g.life <= 0) removeGolden(g);
+    if (g.life <= 0) {
+      // missed it: lose a point (never below zero)
+      score = Math.max(0, score - MISS_PENALTY);
+      scoreEl.textContent = score;
+      showPop(parseFloat(g.el.style.left) + 42, parseFloat(g.el.style.top) + 42, `-${MISS_PENALTY} 💨`, true);
+      removeGolden(g);
+    }
   }
   // and a new batch shows up every 1.5-4 seconds
   goldenTimer -= dt;
@@ -391,10 +403,10 @@ function spawnGolden() {
   el.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     if (!running) return;
-    score += 5;
+    score += GOLDEN_POINTS;
     scoreEl.textContent = score;
     const rect = playArea.getBoundingClientRect();
-    showPop(e.clientX - rect.left, e.clientY - rect.top, "+5 ⭐");
+    showPop(e.clientX - rect.left, e.clientY - rect.top, `+${GOLDEN_POINTS} 🍌`);
     playSound(monkeyYum);
     removeGolden(g);
   });
