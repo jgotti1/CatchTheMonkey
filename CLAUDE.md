@@ -16,7 +16,7 @@ python3 -m http.server 8000
 
 ## Branches
 
-`main` holds the original 2022 version and is intentionally preserved. The iPad/touch modernization lives on `ipad-modernization`; don't merge or change `main` unless asked.
+`main` is the modernized iPad/touch version. The untouched original 2022 version is preserved on the `original-version` branch — don't change it.
 
 ## Architecture
 
@@ -33,4 +33,4 @@ Three files plus `assets/` (images, GIFs, and audio referenced by relative path 
 - Touch/iPad support is a design goal: input uses `pointerdown` (not `click`/`mouseleave`), and audio must be started from inside a user tap (`startGame`) or iOS Safari blocks it.
 - Monkey movement is time-based (`dt` in seconds, speeds in px/sec via the `SPEEDS` table) so it behaves the same at 60Hz and 120Hz; position is applied via `transform: translate`, and bounds use `playArea.clientWidth/Height`.
 - Best score persists in `localStorage` under `ftm-best`; access is wrapped in try/catch because it can throw in private browsing.
-- Working-tree files on `main` were CRLF while the committed versions are LF; keep new files LF.
+- Keep files LF (the original working-tree files were CRLF).
