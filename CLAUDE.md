@@ -26,15 +26,19 @@ The Vercel MCP connector only sees the project when called without a team ID or 
 
 ## Portfolio card
 
-`README.md` ends with a hidden `<!-- portfolio-card:start ... portfolio-card:end -->` JSON block that the author's portfolio site reads to build a project card (title, description, live URL, repo URL, thumbnail, tech). When the game's features, tech, or URLs change, update that JSON along with the README text and keep it valid JSON.
+`README.md` ends with a hidden `<!-- portfolio-card:start ... portfolio-card:end -->` JSON block (invisible on GitHub's rendered page; visible via Raw/Edit) that the author's portfolio site reads to build a project card (title, description, live URL, repo URL, thumbnail, tech). The thumbnail is `docs/preview.jpg`, a screenshot of the live site's start screen.
+
+- When the game's features, tech, or URLs change, update that JSON along with the README text and keep it valid JSON (no `--` inside it).
+- The user's personal skills manage this: `/portfolio-card <live-url>` (run here) regenerates the card and `docs/preview.jpg`; `/build-card <github-link>` (run in the portfolio-site repo) reads it. Both live in `~/.claude/skills/`, not in this repo.
+- GitHub caches raw files by branch name for a few minutes after a push; fetch by commit SHA to see a fresh card immediately.
 
 ## Architecture
 
-Three files plus `assets/` (images, GIFs, and audio referenced by relative path from `game.css`, `index.html`, and `game.js`):
+Three files plus `assets/` (images, GIFs, and audio referenced by relative path from `game.css`, `index.html`, and `game.js`). `docs/preview.jpg` is only the portfolio thumbnail, not used by the game:
 
-- `index.html` — static markup: HUD (score/timer/best/mute), a `#playArea` containing two overlay screens (`#menu` start screen, `#endScreen` game over), and three `<audio>` elements.
+- `index.html` — static markup: HUD (score/timer/best/combo/mute), a `#playArea` containing two overlay screens (`#menu` start screen, `#endScreen` game over), and three `<audio>` elements.
 - `game.css` — the page is a flex column filling `100dvh`; `#playArea` takes the remaining space, so the game adapts to any screen size/rotation. Overlays are toggled with the `.hidden` class; the `body.gameover` and `.playArea.playing/.over` classes swap backgrounds and cursor.
-- `game.js` — all game logic, module-level state (no classes). Flow: menu choices set `selectedMinutes`/`selectedLevel` → `startGame()` → a 1s `setInterval` (`tick`) drives the countdown while a `requestAnimationFrame` loop (`moveMonkey`) moves the monkey → `endGame()` clears both, saves best score, shows `#endScreen`. "Play again" just returns to the menu (no page reload).
+- `game.js` — all game logic, module-level state (no classes). Flow: menu choices set `selectedMinutes`/`selectedLevel` → `startGame()` → a 1s `setInterval` (`tick`) drives the countdown while a `requestAnimationFrame` loop (`moveMonkey`) moves every monkey, expires the combo and spawns/expires golden bananas (`updateGolden`) → `endGame()` clears both, saves best score, shows `#endScreen`. "Play again" just returns to the menu (no page reload).
 
 ## Things to keep in mind
 
