@@ -65,6 +65,54 @@ python3 -m http.server 8000
 
 Then open `http://<your-computer's-IP>:8000` on the device.
 
+## Hosting and domain
+
+- Hosted on [Vercel](https://vercel.com) (project `catch-the-monkey`). Every push to `main` deploys automatically.
+- Live at **https://monkeygame.margotticode.com**, a custom subdomain of `margotticode.com`. The domain is registered at Bluehost, which only holds the DNS record; the game files are not on Bluehost.
+- DNS record in Bluehost (Domains → Manage → DNS): `CNAME`, host `monkeygame`, pointing to `8bff114682e0cfb8.vercel-dns-017.com`.
+- Also available at https://catch-the-monkey.vercel.app.
+
 ## Built with
 
 Plain HTML, CSS and JavaScript. No frameworks, libraries or build step. Hosted on Vercel, and every push to `main` deploys automatically.
+
+## Portfolio card
+
+The block below is machine-readable project info for a portfolio site (invisible on GitHub). Keep it in sync when the game, URL or tech changes. To build a card: read this JSON and use `title`, `tagline`/`description`, `thumbnail`, `tech`, and link to `liveUrl` and `repoUrl`.
+
+<!-- portfolio-card:start
+{
+  "title": "Feed the Monkey",
+  "category": "game",
+  "tagline": "A fast-paced tap-and-score browser game that works on desktop and iPad.",
+  "description": "Feed the monkey as many times as you can before the clock runs out. Tap the monkeys for points, grab the glowing golden bananas, and build combos, but miss a golden banana and you lose a point. Pick 1, 2 or 3 minutes and Easy, Medium or Expert (1, 2 or 3 monkeys). Beat your best score for a banana-confetti celebration.",
+  "liveUrl": "https://monkeygame.margotticode.com",
+  "repoUrl": "https://github.com/jgotti1/CatchTheMonkey",
+  "thumbnail": "https://raw.githubusercontent.com/jgotti1/CatchTheMonkey/main/docs/preview.jpg",
+  "tech": [
+    "HTML5",
+    "CSS3",
+    "JavaScript (vanilla)",
+    "Pointer Events (touch + mouse)",
+    "requestAnimationFrame",
+    "CSS animations",
+    "Web Audio (HTML audio)",
+    "localStorage",
+    "Vercel"
+  ],
+  "features": [
+    "Touch-friendly and responsive (iPad, phone, desktop)",
+    "3 difficulty levels with 1-3 monkeys",
+    "Combo multiplier and golden-banana bonus/penalty scoring",
+    "Time-based movement that runs the same at 60Hz and 120Hz",
+    "Saved best score, end-of-game animations and confetti"
+  ],
+  "platforms": [
+    "desktop",
+    "tablet",
+    "mobile"
+  ],
+  "status": "live",
+  "origin": "First project from the NJIT Boot Camp (April 2022), modernized in 2026 for touch devices."
+}
+portfolio-card:end -->

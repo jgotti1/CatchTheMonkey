@@ -18,6 +18,16 @@ python3 -m http.server 8000
 
 `main` is the modernized iPad/touch version. The untouched original 2022 version is preserved on the `original-version` branch — don't change it.
 
+## Deployment
+
+Hosted on Vercel (project `catch-the-monkey`, team `john`, scope `john-74e3`), auto-deployed from GitHub `jgotti1/CatchTheMonkey` on every push to `main` — no build step. Live at https://monkeygame.margotticode.com (also catch-the-monkey.vercel.app). The custom domain's DNS lives at Bluehost as a CNAME: host `monkeygame` → `8bff114682e0cfb8.vercel-dns-017.com`; the site's files are not hosted on Bluehost.
+
+The Vercel MCP connector only sees the project when called without a team ID or with slug `jgotti711-4698`; using the team ID or `john-74e3` returns 403/empty results.
+
+## Portfolio card
+
+`README.md` ends with a hidden `<!-- portfolio-card:start ... portfolio-card:end -->` JSON block that the author's portfolio site reads to build a project card (title, description, live URL, repo URL, thumbnail, tech). When the game's features, tech, or URLs change, update that JSON along with the README text and keep it valid JSON.
+
 ## Architecture
 
 Three files plus `assets/` (images, GIFs, and audio referenced by relative path from `game.css`, `index.html`, and `game.js`):
